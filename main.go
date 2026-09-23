@@ -31,6 +31,9 @@ func main() {
 	}
 	cmds.register("login", handlerLogin)
 	cmds.register("register", handlerRegister)
+	cmds.register("reset", handlerReset)
+	cmds.register("users", handlerGetUsers)
+	cmds.register("agg", handlerAgg)
 	userCmds := os.Args
 	if len(userCmds) < 2 {
 		fmt.Println("command name required")
