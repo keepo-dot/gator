@@ -1,10 +1,13 @@
 package main
 
 import (
+	"database/sql"
 	"fmt"
 	"os"
 
 	"github.com/keepo-dot/gator/internal/config"
+	"github.com/keepo-dot/gator/internal/database"
+	_ "github.com/lib/pq"
 )
 
 func main() {
@@ -16,11 +19,18 @@ func main() {
 	cliState := state{
 		cfg: &cfg,
 	}
-
+	db, err := sql.Open("postgres", cfg.DBURL)
+	if err != nil {
+		fmt.Printf("error connecting to database: %s\n", err)
+		os.Exit(1)
+	}
+	dbQueries := database.New(db)
+	cliState.db = dbQueries
 	cmds := commands{
 		handlers: make(map[string]func(*state, command) error),
 	}
 	cmds.register("login", handlerLogin)
+	cmds.register("register", handlerRegister)
 	userCmds := os.Args
 	if len(userCmds) < 2 {
 		fmt.Println("command name required")
