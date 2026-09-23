@@ -34,6 +34,7 @@ func main() {
 	cmds.register("reset", handlerReset)
 	cmds.register("users", handlerGetUsers)
 	cmds.register("agg", handlerAgg)
+	cmds.register("addfeed", handlerAddFeed)
 	userCmds := os.Args
 	if len(userCmds) < 2 {
 		fmt.Println("command name required")

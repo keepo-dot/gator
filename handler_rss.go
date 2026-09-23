@@ -7,6 +7,10 @@ import (
 	"html"
 	"io"
 	"net/http"
+	"time"
+
+	"github.com/google/uuid"
+	"github.com/keepo-dot/gator/internal/database"
 )
 
 type RSSFeed struct {
@@ -59,4 +63,28 @@ func fetchFeed(ctx context.Context, feedURL string) (*RSSFeed, error) {
 		rssFeed.Channel.Item[i].PubDate = html.UnescapeString(rssFeed.Channel.Item[i].PubDate)
 	}
 	return &rssFeed, nil
+}
+
+func handlerAddFeed(s *state, cmd command) error {
+	if len(cmd.arguments) < 2 {
+		return fmt.Errorf("added rss feeds need a 'name' and 'url'")
+	}
+	currentUser := s.cfg.CurrentUserName
+	user, err := s.db.GetUser(context.Background(), currentUser)
+	if err != nil {
+		return fmt.Errorf("error getting user: %w", err)
+	}
+	feed, err := s.db.AddFeed(context.Background(), database.AddFeedParams{
+		ID:        uuid.New(),
+		CreatedAt: time.Now(),
+		UpdatedAt: time.Now(),
+		Name:      cmd.arguments[0],
+		Url:       cmd.arguments[1],
+		UserID:    user.ID,
+	})
+	if err != nil {
+		return fmt.Errorf("error adding feed: %w", err)
+	}
+	fmt.Printf("%+v", feed)
+	return nil
 }
