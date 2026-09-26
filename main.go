@@ -34,8 +34,11 @@ func main() {
 	cmds.register("reset", handlerReset)
 	cmds.register("users", handlerGetUsers)
 	cmds.register("agg", handlerAgg)
-	cmds.register("addfeed", handlerAddFeed)
+	cmds.register("addfeed", mwLoggedIn(handlerAddFeed))
 	cmds.register("feeds", handlerFeeds)
+	cmds.register("follow", mwLoggedIn(handlerFollow))
+	cmds.register("following", mwLoggedIn(handlerFollowing))
+	cmds.register("unfollow", mwLoggedIn(handlerUnfollow))
 	userCmds := os.Args
 	if len(userCmds) < 2 {
 		fmt.Println("command name required")
