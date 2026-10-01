@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"database/sql"
 	"encoding/xml"
 	"fmt"
 	"html"
@@ -92,4 +93,32 @@ func handlerAddFeed(s *state, cmd command, user database.User) error {
 	}
 	fmt.Printf("%+v", feed)
 	return nil
+}
+
+func scrapeFeeds(s *state) {
+	nextFeed, err := s.db.GetNextFeedToFetch(context.Background())
+	if err != nil {
+		err = fmt.Errorf("error getting next feed: %w", err)
+		fmt.Println(err)
+		return
+	}
+	err = s.db.MarkFeedFetched(context.Background(), database.MarkFeedFetchedParams{
+		ID:            nextFeed.ID,
+		UpdatedAt:     time.Now(),
+		LastFetchedAt: sql.NullTime{Time: time.Now(), Valid: true},
+	})
+	if err != nil {
+		err = fmt.Errorf("error marking feed fetched: %w", err)
+		fmt.Println(err)
+		return
+	}
+	fetchedFeed, err := fetchFeed(context.Background(), nextFeed.Url)
+	if err != nil {
+		err = fmt.Errorf("error fetching feed: %w", err)
+		fmt.Println(err)
+		return
+	}
+	for _, item := range fetchedFeed.Channel.Item {
+		fmt.Println(item.Title)
+	}
 }
