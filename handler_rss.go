@@ -12,6 +12,8 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/keepo-dot/gator/internal/database"
+	"github.com/lib/pq"
+	"github.com/lib/pq/pqerror"
 )
 
 type RSSFeed struct {
@@ -119,6 +121,30 @@ func scrapeFeeds(s *state) {
 		return
 	}
 	for _, item := range fetchedFeed.Channel.Item {
-		fmt.Println(item.Title)
+		var pubDate sql.NullTime
+		timeParsed, err := time.Parse(time.RFC1123Z, item.PubDate)
+		if err != nil {
+			pubDate = sql.NullTime{Time: timeParsed, Valid: false}
+		} else {
+			pubDate = sql.NullTime{Time: timeParsed, Valid: true}
+		}
+		err = s.db.CreatePost(context.Background(), database.CreatePostParams{
+			ID:          uuid.New(),
+			CreatedAt:   time.Now(),
+			UpdatedAt:   time.Now(),
+			Title:       item.Title,
+			Url:         item.Link,
+			Description: sql.NullString{String: item.Description, Valid: true},
+			PublishedAt: pubDate,
+			FeedID:      nextFeed.ID,
+		})
+		if err != nil {
+			uniqueErr := pq.As(err, pqerror.UniqueViolation)
+			if uniqueErr != nil {
+				continue
+			} else {
+				fmt.Println(fmt.Errorf("error during post creation: %w", err))
+			}
+		}
 	}
 }

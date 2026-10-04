@@ -39,6 +39,7 @@ func main() {
 	cmds.register("follow", mwLoggedIn(handlerFollow))
 	cmds.register("following", mwLoggedIn(handlerFollowing))
 	cmds.register("unfollow", mwLoggedIn(handlerUnfollow))
+	cmds.register("browse", mwLoggedIn(handlerBrowse))
 	userCmds := os.Args
 	if len(userCmds) < 2 {
 		fmt.Println("command name required")
