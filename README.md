@@ -21,10 +21,13 @@ Gator is a command-line RSS feed aggregator built with Go and PostgreSQL. It all
 ## Installation
 
 1. Clone the repository:
+
+```bash
 git clone <https://github.com/><your-username>/gator.git
 cd gator
+```
 
-2. Install the CLI binary:
+1. Install the CLI binary:
 go install .
 
 Ensure your PATH contains your Go bin directory (typically ~/go/bin).
