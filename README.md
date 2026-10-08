@@ -28,7 +28,10 @@ cd gator
 ```
 
 1. Install the CLI binary:
+
+```bash
 go install .
+```
 
 Ensure your PATH contains your Go bin directory (typically ~/go/bin).
 
